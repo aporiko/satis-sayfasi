@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gruntech Solar - Satış Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gruntech-gradient { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <header class="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
+        <div class="font-bold text-2xl text-orange-600">GRÜNTECH SOLAR</div>
+        <div class="text-gray-500 text-sm">Satış & Keşif Sayfası</div>
+    </header>
+
+    <main class="max-w-4xl mx-auto py-12 px-4">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
+            
+            <div class="gruntech-gradient p-10 text-white md:w-1/3 flex flex-col justify-center">
+                <h2 class="text-3xl font-bold mb-6">Hemen Başlayın</h2>
+                <ul class="space-y-4 text-orange-100">
+                    <li class="flex items-center">✓ Ücretsiz Keşif</li>
+                    <li class="flex items-center">✓ Mühendislik Desteği</li>
+                    <li class="flex items-center">✓ Verimlilik Analizi</li>
+                </ul>
+            </div>
+
+            <div class="p-10 md:w-2/3">
+                <form id="satisFormu" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Müşteri Adı Soyadı</label>
+                        <input type="text" name="isim" required class="mt-1 block w-full border border-gray-300 rounded-md p-3 focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Telefon</label>
+                            <input type="tel" name="telefon" required class="mt-1 block w-full border border-gray-300 rounded-md p-3">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">İl / İlçe</label>
+                            <input type="text" name="il_ilce" required class="mt-1 block w-full border border-gray-300 rounded-md p-3">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Aylık Ortalama Fatura (TL)</label>
+                        <input type="number" name="fatura" required class="mt-1 block w-full border border-gray-300 rounded-md p-3">
+                    </div>
+                    <button type="submit" id="submitBtn" class="w-full gruntech-gradient text-white font-bold py-4 rounded-xl shadow-lg hover:opacity-90 transition">KEŞİF TALEBİNİ KAYDET</button>
+                </form>
+                <div id="basariMesaji" class="hidden mt-6 p-4 bg-green-100 text-green-700 rounded-xl text-center font-bold">
+                    Tebrikler! Talep Google Sheets dosyanıza kaydedildi.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw9gBdO-YOPqV3rvPv2y327GUcTdGHPDYirXOOymcyezAp0H93icdoU0Qt8FG3LVIgx/exec'; // Google Sheets'ten aldığınız URL'yi buraya tırnak içine koyun
+        const form = document.getElementById('satisFormu');
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('basariMesaji');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            btn.disabled = true;
+            btn.innerText = 'Gönderiliyor...';
+
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+            .then(response => {
+                msg.classList.remove('hidden');
+                btn.innerText = 'Kayıt Başarılı';
+                form.reset();
+            })
+            .catch(error => {
+                alert('Hata oluştu, tekrar deneyin.');
+                btn.disabled = false;
+                btn.innerText = 'TEKRAR DENE';
+            });
+        });
+    </script>
+</body>
+</html>
