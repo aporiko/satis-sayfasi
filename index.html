@@ -3,83 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gruntech Solar - Satış Paneli</title>
+    <title>Gruntech Solar - Ekipman Marketi</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .gruntech-gradient { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-slate-50">
 
-    <header class="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
-        <div class="font-bold text-2xl text-orange-600">GRÜNTECH SOLAR</div>
-        <div class="text-gray-500 text-sm">Satış & Keşif Sayfası</div>
-    </header>
-
-    <main class="max-w-4xl mx-auto py-12 px-4">
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-            
-            <div class="gruntech-gradient p-10 text-white md:w-1/3 flex flex-col justify-center">
-                <h2 class="text-3xl font-bold mb-6">Hemen Başlayın</h2>
-                <ul class="space-y-4 text-orange-100">
-                    <li class="flex items-center">✓ Ücretsiz Keşif</li>
-                    <li class="flex items-center">✓ Mühendislik Desteği</li>
-                    <li class="flex items-center">✓ Verimlilik Analizi</li>
-                </ul>
-            </div>
-
-            <div class="p-10 md:w-2/3">
-                <form id="satisFormu" class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Müşteri Adı Soyadı</label>
-                        <input type="text" name="isim" required class="mt-1 block w-full border border-gray-300 rounded-md p-3 focus:ring-orange-500 focus:border-orange-500">
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Telefon</label>
-                            <input type="tel" name="telefon" required class="mt-1 block w-full border border-gray-300 rounded-md p-3">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">İl / İlçe</label>
-                            <input type="text" name="il_ilce" required class="mt-1 block w-full border border-gray-300 rounded-md p-3">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Aylık Ortalama Fatura (TL)</label>
-                        <input type="number" name="fatura" required class="mt-1 block w-full border border-gray-300 rounded-md p-3">
-                    </div>
-                    <button type="submit" id="submitBtn" class="w-full gruntech-gradient text-white font-bold py-4 rounded-xl shadow-lg hover:opacity-90 transition">KEŞİF TALEBİNİ KAYDET</button>
-                </form>
-                <div id="basariMesaji" class="hidden mt-6 p-4 bg-green-100 text-green-700 rounded-xl text-center font-bold">
-                    Tebrikler! Talep Google Sheets dosyanıza kaydedildi.
-                </div>
-            </div>
+    <nav class="sticky top-0 z-50 bg-white shadow-sm px-6 py-4 flex justify-between items-center">
+        <div class="text-2xl font-black text-orange-600 tracking-tighter">GRÜNTECH <span class="text-slate-800 underline decoration-orange-500">MARKET</span></div>
+        <div class="flex gap-4 items-center">
+            <button onclick="toggleCart()" class="relative p-2 bg-slate-100 rounded-full">
+                <i class="fa-solid fa-cart-shopping text-slate-700"></i>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-orange-600 text-white text-xs px-1.5 rounded-full">0</span>
+            </button>
         </div>
-    </main>
+    </nav>
+
+    <div class="flex flex-wrap gap-2 p-6 justify-center bg-white border-b">
+        <button class="px-4 py-2 rounded-full bg-orange-100 text-orange-700 font-bold border border-orange-200">Tümü</button>
+        <button class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200">Güneş Panelleri</button>
+        <button class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200">İnverterler</button>
+        <button class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200">Kablolama</button>
+        <button class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200">Montaj Ekipmanları</button>
+        <button class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200">Ölçüm Cihazları</button>
+    </div>
+
+    <main class="max-w-7xl mx-auto p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="product-grid">
+        </main>
+
+    <div id="cart-sidebar" class="fixed right-0 top-0 h-full w-full md:w-96 bg-white shadow-2xl z-[60] transform translate-x-full transition-transform duration-300 p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <h3 class="text-xl font-bold">Sipariş Listeniz</h3>
+            <button onclick="toggleCart()" class="text-slate-400"><i class="fa-solid fa-xmark text-2xl"></i></button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto space-y-4">
+            </div>
+        <div class="border-t pt-6 mt-6">
+            <div class="flex justify-between text-xl font-bold mb-4">
+                <span>Toplam:</span>
+                <span id="total-price">0 TL</span>
+            </div>
+            
+            <div class="space-y-3 mb-4">
+                <input type="text" id="cust-name" placeholder="Adınız Soyadınız" class="w-full border p-2 rounded">
+                <input type="tel" id="cust-tel" placeholder="Telefonunuz" class="w-full border p-2 rounded">
+            </div>
+
+            <button onclick="checkout('Sipariş')" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold mb-2">SATIN ALMA TALEBİ GÖNDER</button>
+            <button onclick="checkout('Teklif')" class="w-full border-2 border-orange-600 text-orange-600 py-3 rounded-xl font-bold text-sm">TOPLU ALIM İÇİN TEKLİF İSTE</button>
+        </div>
+    </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw9gBdO-YOPqV3rvPv2y327GUcTdGHPDYirXOOymcyezAp0H93icdoU0Qt8FG3LVIgx/exec'; // Google Sheets'ten aldığınız URL'yi buraya tırnak içine koyun
-        const form = document.getElementById('satisFormu');
-        const btn = document.getElementById('submitBtn');
-        const msg = document.getElementById('basariMesaji');
+        // ÜRÜN VERİLERİ (Burası sizin stok listeniz olacak)
+        const products = [
+            { id: 1, name: "550W Half-Cut Panel", category: "Panel", price: 4200, img: "https://via.placeholder.com/200", desc: "A Sınıfı Monokristal" },
+            { id: 2, name: "5kW On-Grid İnverter", category: "İnverter", price: 28500, img: "https://via.placeholder.com/200", desc: "Akıllı İzleme Özellikli" },
+            { id: 3, name: "Solar Kablo (6mm²)", category: "Kablo", price: 45, img: "https://via.placeholder.com/200", desc: "Kırmızı/Siyah 1 Metre" },
+            { id: 4, name: "Dijital Ölçüm Cihazı", category: "Ölçüm", price: 1250, img: "https://via.placeholder.com/200", desc: "Hassas Ölçüm" }
+        ];
 
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            btn.disabled = true;
-            btn.innerText = 'Gönderiliyor...';
+        let cart = [];
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw9gBdO-YOPqV3rvPv2y327GUcTdGHPDYirXOOymcyezAp0H93icdoU0Qt8FG3LVIgx/exec';
 
-            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-            .then(response => {
-                msg.classList.remove('hidden');
-                btn.innerText = 'Kayıt Başarılı';
-                form.reset();
-            })
-            .catch(error => {
-                alert('Hata oluştu, tekrar deneyin.');
-                btn.disabled = false;
-                btn.innerText = 'TEKRAR DENE';
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = products.map(p => `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border hover:shadow-md transition">
+                    <img src="${p.img}" class="w-full h-40 object-cover rounded-xl mb-4">
+                    <span class="text-xs font-bold text-orange-600 uppercase tracking-widest">${p.category}</span>
+                    <h4 class="font-bold text-slate-800 text-lg">${p.name}</h4>
+                    <p class="text-gray-400 text-xs mb-4">${p.desc}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-black text-slate-900">${p.price} TL</span>
+                        <button onclick="addToCart(${p.id})" class="bg-slate-100 p-2 rounded-lg hover:bg-orange-600 hover:text-white transition">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            cart.push(product);
+            updateCart();
+        }
+
+        function updateCart() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const itemsContainer = document.getElementById('cart-items');
+            itemsContainer.innerHTML = cart.map((p, index) => `
+                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border">
+                    <div>
+                        <div class="font-bold text-sm">${p.name}</div>
+                        <div class="text-orange-600 font-bold">${p.price} TL</div>
+                    </div>
+                    <button onclick="removeFromCart(${index})" class="text-red-400"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+            
+            const total = cart.reduce((sum, p) => sum + p.price, 0);
+            document.getElementById('total-price').innerText = total + ' TL';
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            sidebar.classList.toggle('translate-x-full');
+        }
+
+        function checkout(type) {
+            const name = document.getElementById('cust-name').value;
+            const tel = document.getElementById('cust-tel').value;
+            if(!name || !tel) { alert('Lütfen bilgilerinizi girin.'); return; }
+
+            const orderData = {
+                isim: name,
+                telefon: tel,
+                tur: type,
+                urunler: cart.map(p => p.name).join(', '),
+                toplam: document.getElementById('total-price').innerText
+            };
+
+            fetch(scriptURL, { method: 'POST', body: JSON.stringify(orderData)})
+            .then(() => {
+                alert('Talebiniz alınmıştır! Ekibimiz size dönecektir.');
+                cart = [];
+                updateCart();
+                toggleCart();
             });
-        });
+        }
+
+        renderProducts();
     </script>
 </body>
 </html>
