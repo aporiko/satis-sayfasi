@@ -125,99 +125,67 @@
     </div>
 
     <script>
-        // --- YAPILANDIRMA ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbygPfI-48vrgQAbxDFgYL0eS0EywPed8HfxJkdPvaKcaGoGgUijCXvX_4_A1fjbV4y4/exec'; // URL'nizi buraya yapıştırın
+        // --- AYARLAR ---
+        // Apps Script'ten aldığınız URL'yi tırnakların içine yapıştırın:
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyELoomgFGQRZMqizRnRdCRMni3eEGilOZLvG6cbK_PvPn4NoBhxV6W2LVIicRLV2w/exec'; 
 
-        // --- GELİŞMİŞ ÜRÜN VERİLERİ ---
-        // 'details' kısmına ürünün teknik özelliklerini dizi (liste) olarak yazabilirsiniz.
-        const products = [
-            { 
-                id: 1, 
-                name: "550W Half-Cut Panel", 
-                category: "Panel", 
-                price: 4250, 
-                img: "https://images.unsplash.com/photo-1592833159155-c62df1b65634?auto=format&fit=crop&w=500&q=80", 
-                desc: "Yüksek verimli A sınıfı panel.",
-                details: [
-                    "Güç: 550 Watt",
-                    "Teknoloji: Monokristal Half-Cut",
-                    "Verimlilik: %21.5",
-                    "Boyutlar: 2279 x 1134 x 35 mm",
-                    "Garanti: 12 Yıl Ürün, 25 Yıl Performans",
-                    "Konnektör: MC4 Uyumlu"
-                ]
-            },
-            { 
-                id: 2, 
-                name: "10kW On-Grid İnverter", 
-                category: "İnverter", 
-                price: 32000, 
-                img: "https://images.unsplash.com/photo-1620288627223-537a2b2f6723?auto=format&fit=crop&w=500&q=80", 
-                desc: "3 Fazlı, Wi-Fi modüllü akıllı inverter.",
-                details: [
-                    "Nominal Çıkış Gücü: 10.000 W",
-                    "Maksimum Verim: %98.6",
-                    "MPPT Sayısı: 2 Adet",
-                    "İletişim: Wi-Fi / LAN (Dahil)",
-                    "Koruma Sınıfı: IP65 (Dış Ortam)",
-                    "Garanti: 5 Yıl Standart"
-                ]
-            },
-            { 
-                id: 3, 
-                name: "100Ah Jel Akü", 
-                category: "Akü", 
-                price: 6500, 
-                img: "https://images.unsplash.com/photo-1619641604085-300438a221f7?auto=format&fit=crop&w=500&q=80", 
-                desc: "Derin döngülü solar jel akü.",
-                details: [
-                    "Kapasite: 100 Ah (12V)",
-                    "Tip: Derin Döngü (Deep Cycle) Jel",
-                    "Ömür Beklentisi: 10+ Yıl",
-                    "Ağırlık: 32 kg",
-                    "Bakım: Bakım Gerektirmez"
-                ]
-            },
-            { 
-                id: 4, 
-                name: "Solar Kablo 6mm²", 
-                category: "Montaj", 
-                price: 45, 
-                img: "https://images.unsplash.com/photo-1544724569-5f546fd6dd2d?auto=format&fit=crop&w=500&q=80", 
-                desc: "Kırmızı/Siyah seçenekli (Metre fiyatı).",
-                details: [
-                    "Kesit: 6 mm²",
-                    "İletken: Kalaylı Bakır",
-                    "İzolasyon: Çift Katmanlı",
-                    "UV Dayanımı: Var",
-                    "Sıcaklık Aralığı: -40°C / +90°C"
-                ]
-            }
-        ];
-
+        // --- DEĞİŞKENLER ---
+        // Bak burası artık bomboş! Eski ürünler gitti.
+        let products = []; 
         let cart = [];
+        
+        // --- SAYFA AÇILINCA ÇALIŞAN KOMUT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchProducts(); // Sayfa açılır açılmaz ürünleri çekmeye git
+        });
 
-        // --- FONKSİYONLAR ---
+        // 1. Google Sheets'ten Ürünleri Çekme Fonksiyonu
+        function fetchProducts() {
+            const grid = document.getElementById('product-grid');
+            // Yükleniyor yazısı koyalım ki kullanıcı beklediğini anlasın
+            grid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-500 font-bold animate-pulse">Mağaza ürünleri yükleniyor...</div>';
 
+            fetch(scriptURL)
+            .then(response => response.json())
+            .then(data => {
+                products = data; // Excel'den gelenleri hafızaya al
+                if(products.length === 0) {
+                     grid.innerHTML = '<div class="col-span-full text-center py-10 text-red-500">Excel tablosunda ürün bulunamadı veya bağlantı hatası.</div>';
+                } else {
+                     renderProducts(products); // Ekrana bas
+                }
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                grid.innerHTML = '<div class="col-span-full text-center text-red-600 font-bold">Veri çekilemedi. Apps Script URL\'sini kontrol edin.</div>';
+            });
+        }
+
+        // 2. Ürünleri Ekrana Dizme
         function renderProducts(list) {
             const grid = document.getElementById('product-grid');
-            if(list.length === 0) { grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-10">Ürün bulunamadı.</div>'; return; }
             
+            if(!list || list.length === 0) { 
+                grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-10">Bu kategoride ürün yok.</div>'; 
+                return; 
+            }
+            
+            // Excel'deki verileri kutucuklara yerleştiriyoruz
             grid.innerHTML = list.map(p => `
                 <div class="group bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-orange-100 transition-all duration-300 flex flex-col overflow-hidden">
-                    <div class="relative h-52 overflow-hidden cursor-pointer" onclick="openModal(${p.id})">
-                        <img src="${p.img}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                    <div class="relative h-52 overflow-hidden cursor-pointer" onclick="openModal('${p.id}')">
+                        <img src="${p.img}" onerror="this.src='https://via.placeholder.com/300?text=Resim+Yok'" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
                         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                             <span class="bg-white/90 text-slate-900 px-4 py-2 rounded-full font-bold text-sm shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform">İncele</span>
                         </div>
                     </div>
                     <div class="p-5 flex-1 flex flex-col">
                         <span class="text-xs font-bold text-orange-600 uppercase mb-1">${p.category}</span>
-                        <h3 class="font-bold text-slate-800 text-lg mb-2 cursor-pointer hover:text-orange-600 transition-colors" onclick="openModal(${p.id})">${p.name}</h3>
+                        <h3 class="font-bold text-slate-800 text-lg mb-2 cursor-pointer hover:text-orange-600 transition-colors" onclick="openModal('${p.id}')">${p.name}</h3>
                         <p class="text-gray-400 text-sm mb-4 line-clamp-2">${p.desc}</p>
                         <div class="mt-auto pt-4 border-t flex justify-between items-center">
-                            <span class="text-xl font-black text-slate-900">${p.price.toLocaleString('tr-TR')} ₺</span>
-                            <button onclick="addToCart(${p.id})" class="bg-slate-100 w-10 h-10 rounded-full flex items-center justify-center text-slate-600 hover:bg-orange-600 hover:text-white transition-all shadow-sm active:scale-95" title="Sepete Ekle">
+                            <span class="text-xl font-black text-slate-900">${Number(p.price).toLocaleString('tr-TR')} ₺</span>
+                            <button onclick="addToCart('${p.id}')" class="bg-slate-100 w-10 h-10 rounded-full flex items-center justify-center text-slate-600 hover:bg-orange-600 hover:text-white transition-all shadow-sm active:scale-95">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
@@ -226,35 +194,41 @@
             `).join('');
         }
 
-        // --- MODAL İŞLEMLERİ (YENİ) ---
+        // 3. Modal (Detay Penceresi) Açma
         function openModal(id) {
-            const product = products.find(p => p.id === id);
+            // ID eşleştirmesi yaparken hem metin hem sayı olabilir diye == kullandık
+            const product = products.find(p => p.id == id);
             if(!product) return;
 
             document.getElementById('modal-img').src = product.img;
             document.getElementById('modal-category').innerText = product.category;
             document.getElementById('modal-title').innerText = product.name;
-            document.getElementById('modal-price').innerText = product.price.toLocaleString('tr-TR') + ' TL';
+            document.getElementById('modal-price').innerText = Number(product.price).toLocaleString('tr-TR') + ' TL';
             
-            // Detayları listeye çevir
-            const detailsHtml = product.details ? product.details.map(item => `<li>${item}</li>`).join('') : '<li>Detay bilgi yok.</li>';
+            // Detaylar listesi
+            let detailsHtml = '';
+            if (Array.isArray(product.details)) {
+                detailsHtml = product.details.map(item => `<li>${item}</li>`).join('');
+            } else {
+                detailsHtml = '<li>Ek özellik belirtilmemiş.</li>';
+            }
             document.getElementById('modal-desc').innerHTML = detailsHtml;
 
-            // Butona fonksiyon ata
             const btn = document.getElementById('modal-add-btn');
             btn.onclick = function() { addToCart(product.id); closeModal(); };
 
-            // Modalı göster
             document.getElementById('product-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Kaydırmayı kilitle
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
             document.getElementById('product-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto'; // Kaydırmayı aç
+            document.body.style.overflow = 'auto';
         }
 
+        // 4. Kategori Filtreleme
         function filterProducts(category) {
+            // Buton renklerini ayarla
             document.querySelectorAll('.cat-btn').forEach(btn => {
                 if(btn.innerText.includes(category) || (category === 'Tümü' && btn.innerText === 'Tümü')) {
                     btn.classList.add('active-cat'); btn.classList.remove('bg-slate-100', 'text-slate-600');
@@ -262,11 +236,19 @@
                     btn.classList.remove('active-cat'); btn.classList.add('bg-slate-100', 'text-slate-600');
                 }
             });
-            renderProducts(category === 'Tümü' ? products : products.filter(p => p.category.includes(category) || p.category === category));
+            
+            // Eğer Tümü ise hepsini göster, değilse o kategori ismini içerenleri göster
+            if (category === 'Tümü') {
+                renderProducts(products);
+            } else {
+                const filtered = products.filter(p => p.category === category);
+                renderProducts(filtered);
+            }
         }
 
+        // 5. Sepet İşlemleri
         function addToCart(id) {
-            const product = products.find(p => p.id === id);
+            const product = products.find(p => p.id == id);
             cart.push(product);
             updateCart();
             const sidebar = document.getElementById('cart-sidebar');
@@ -287,17 +269,17 @@
             } else {
                 container.innerHTML = cart.map((p, index) => `
                     <div class="flex gap-3 items-center bg-slate-50 p-3 rounded-xl border border-gray-100">
-                        <img src="${p.img}" class="w-12 h-12 object-cover rounded bg-white">
+                        <img src="${p.img}" onerror="this.src='https://via.placeholder.com/50'" class="w-12 h-12 object-cover rounded bg-white">
                         <div class="flex-1 min-w-0">
                             <div class="font-bold text-sm text-slate-800 truncate">${p.name}</div>
-                            <div class="text-orange-600 font-bold text-xs">${p.price.toLocaleString('tr-TR')} ₺</div>
+                            <div class="text-orange-600 font-bold text-xs">${Number(p.price).toLocaleString('tr-TR')} ₺</div>
                         </div>
                         <button onclick="removeFromCart(${index})" class="text-gray-400 hover:text-red-500 p-2"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 `).join('');
             }
             
-            const total = cart.reduce((sum, p) => sum + p.price, 0);
+            const total = cart.reduce((sum, p) => sum + Number(p.price), 0);
             document.getElementById('total-price').innerText = total.toLocaleString('tr-TR') + ' TL';
         }
 
@@ -322,27 +304,32 @@
 
             if(cart.length === 0) { alert('Sepetiniz boş.'); return; }
             if(!name || !tel) { alert('Lütfen bilgilerinizi giriniz.'); return; }
-            if(scriptURL.includes('BURAYA')) { alert('Google Sheets URL eksik!'); return; }
 
             btn.disabled = true; btn.innerText = '...';
             
-            const urunListesi = cart.map(p => `${p.name} (${p.price} TL)`).join(', \n');
+            const urunListesi = cart.map(p => `${p.name} (${Number(p.price)} TL)`).join(', \n');
             const orderData = { isim: name, telefon: tel, tur: type, urunler: urunListesi, toplam: document.getElementById('total-price').innerText };
 
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify(orderData) })
-            .then(() => {
-                alert('Talebiniz alınmıştır! Sizi arayacağız.');
+            fetch(scriptURL, { 
+                method: 'POST', 
+                body: JSON.stringify(orderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`Teşekkürler Sayın ${name}!\n\n${type} talebiniz bize ulaştı. Ekibimiz ${tel} numarasından size dönüş yapacaktır.`);
                 cart = []; updateCart(); toggleCart();
                 document.getElementById('cust-name').value = ''; document.getElementById('cust-tel').value = '';
             })
-            .catch(() => alert('Hata oluştu.'))
+            .catch(error => {
+                console.error('Sipariş Hatası:', error);
+                // Hata verse bile bazen işlem gerçekleşir, kullanıcıya panik yaptırmayalım
+                alert('Talebiniz alınmış olabilir, ancak bir bağlantı uyarısı aldık. Lütfen teyit ediniz.'); 
+            })
             .finally(() => { btn.disabled = false; btn.innerText = type === 'Satın Alma' ? 'Satın Al' : 'Fiyat Sor'; });
         }
-
-        // Başlangıç
-        renderProducts(products);
     </script>
 </body>
 </html>
+
 
 
